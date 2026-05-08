@@ -1,0 +1,114 @@
+﻿@model SpendSense.Models.User
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="auth-page">
+
+    <!-- Visual Side -->
+    <div class="auth-visual">
+        <div class="auth-visual-content">
+            <div class="auth-visual-logo">S</div>
+            <h1 class="auth-visual-title">Join SpendSense</h1>
+            <p class="auth-visual-desc">Take control of your finances. Track spending, set budgets, and reach your goals.</p>
+
+            <div class="auth-visual-features">
+                <div class="auth-feature">
+                    <span class="auth-feature-icon"><i class="bi bi-bar-chart-line"></i></span>
+                    <div>
+                        <p class="auth-feature-title">Smart Analytics</p>
+                        <p class="auth-feature-desc">Visual reports for every transaction</p>
+                    </div>
+                </div>
+                <div class="auth-feature">
+                    <span class="auth-feature-icon"><i class="bi bi-wallet2"></i></span>
+                    <div>
+                        <p class="auth-feature-title">Budget Control</p>
+                        <p class="auth-feature-desc">Set limits and get notified instantly</p>
+                    </div>
+                </div>
+                <div class="auth-feature">
+                    <span class="auth-feature-icon"><i class="bi bi-shield-check"></i></span>
+                    <div>
+                        <p class="auth-feature-title">100% Secure</p>
+                        <p class="auth-feature-desc">Your data is always private</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Side -->
+    <div class="auth-form-side">
+        <div class="auth-card">
+
+            <div class="auth-logo">S</div>
+            <h2 class="auth-title">Create Account</h2>
+            <p class="auth-subtitle">Start tracking your financial activity with SpendSense.</p>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    @ViewBag.Error
+                </div>
+            }
+
+            <form asp-action="Register" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <div class="input-wrapper">
+                        <input asp-for="Username"
+                               class="form-control"
+                               placeholder="Enter username"
+                               required />
+                        <i class="bi bi-person input-icon"></i>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <div class="input-wrapper">
+                        <input asp-for="Email"
+                               type="email"
+                               class="form-control"
+                               placeholder="you@example.com"
+                               required />
+                        <i class="bi bi-envelope input-icon"></i>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <input asp-for="Password"
+                               type="password"
+                               class="form-control"
+                               placeholder="••••••••"
+                               required />
+                        <i class="bi bi-lock input-icon"></i>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Date Of Birth</label>
+                    <div class="input-wrapper">
+                        <input asp-for="DateOfBirth"
+                               type="date"
+                               class="form-control"
+                               required />
+                        <i class="bi bi-calendar3 input-icon"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 auth-btn">
+                    <i class="bi bi-person-plus"></i>
+                    Create Account
+                </button>
+            </form>
+
+            <div class="auth-link">
+                Already have an account?
+                <a asp-controller="Auth" asp-action="Login">Login</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>

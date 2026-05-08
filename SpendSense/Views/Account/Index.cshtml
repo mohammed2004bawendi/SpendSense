@@ -1,0 +1,106 @@
+﻿@model List<SpendSense.Models.Account>
+
+@{
+    ViewData["Title"] = "Accounts";
+}
+
+<div class="page-header-modern">
+    <div>
+        <h2>Accounts</h2>
+        <p>Manage your cash, bank accounts and credit cards.</p>
+    </div>
+
+    <a asp-controller="Account"
+           asp-action="Create"
+           class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Create Account
+    </a>
+</div>
+
+<div class="table-container">
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info mb-0">
+            No accounts found.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+
+            <table class="table align-middle modern-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Account Type</th>
+                        <th>Balance</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.Name</strong>
+                            </td>
+
+                            <td>
+                                @if (item.AccountType == "Bank")
+                                {
+                                    <span class="account-type-pill account-bank">
+                                        <i class="bi bi-bank"></i> Bank
+                                    </span>
+                                }
+                                else if (item.AccountType == "Cash")
+                                {
+                                    <span class="account-type-pill account-cash">
+                                        <i class="bi bi-cash-stack"></i> Cash
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="account-type-pill account-card">
+                                        <i class="bi bi-credit-card"></i> Credit Card
+                                    </span>
+                                }
+                            </td>
+
+                            <td class="fw-bold">
+                                ₺ @item.Balance
+                            </td>
+
+                            <td class="text-end">
+                                <div class="action-group">
+                                    <a asp-action="Details"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-outline-dark btn-sm">
+                                        Details
+                                    </a>
+
+                                    <a asp-action="Edit"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-outline-primary btn-sm">
+                                        Edit
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-outline-danger btn-sm"
+                                           onclick="return confirm('Are you sure you want to delete this account?');">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+</div>

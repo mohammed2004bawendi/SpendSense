@@ -1,0 +1,109 @@
+﻿@model SpendSense.Models.Budget
+
+@{
+    ViewData["Title"] = "Budget Details";
+}
+
+<div class="page-header-modern">
+    <div>
+        <h2>Budget Details</h2>
+        <p>View budget limit, spending progress and remaining amount.</p>
+    </div>
+
+    <a asp-controller="Budget"
+           asp-action="Index"
+           class="btn btn-outline-light">
+        ← Back
+    </a>
+</div>
+
+<div class="modern-panel">
+
+    <div class="row g-4">
+
+        <div class="col-md-6">
+            <span class="details-label">Category</span>
+            <div class="details-info-card">
+                <strong>@Model.Category</strong>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <span class="details-label">Limit Amount</span>
+            <div class="details-info-card">
+                <strong class="fs-4">₺ @Model.LimitAmount</strong>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <span class="details-label">Spent</span>
+            <div class="details-info-card">
+                <strong class="fs-4 text-danger">₺ @Model.SpentAmount</strong>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <span class="details-label">Remaining</span>
+            <div class="details-info-card">
+                <strong class="fs-4 @(Model.RemainingAmount < 0 ? "text-danger" : "text-success")">
+                    ₺ @Model.RemainingAmount
+                </strong>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <span class="details-label">Status</span>
+            <div class="details-info-card">
+                <span class="budget-status-pill budget-status-@Model.FillClass">
+                    @Model.StatusText
+                </span>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <span class="details-label">Progress</span>
+
+            <div class="details-info-card">
+                <div class="budget-progress-info mb-2">
+                    <span>@Model.ProgressPercentage%</span>
+                </div>
+
+                <div class="progress budget-progress">
+                    <div class="progress-bar bg-@Model.FillClass"
+                         role="progressbar"
+                         style="width:@Math.Min(Model.ProgressPercentage, 100)%">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <span class="details-label">Description</span>
+
+            <div class="details-info-card" style="min-height:120px;">
+                @(string.IsNullOrWhiteSpace(Model.Description)
+                    ? "No Description"
+                    : Model.Description)
+            </div>
+        </div>
+
+    </div>
+
+    <div class="d-flex gap-3 mt-4">
+        <a asp-controller="Budget"
+               asp-action="Edit"
+               asp-route-id="@Model.Id"
+               class="btn btn-primary">
+            Edit Budget
+        </a>
+
+        <a asp-controller="Budget"
+               asp-action="Delete"
+               asp-route-id="@Model.Id"
+               class="btn btn-outline-danger"
+               onclick="return confirm('Are you sure you want to delete this budget?');">
+            Delete
+        </a>
+    </div>
+
+</div>

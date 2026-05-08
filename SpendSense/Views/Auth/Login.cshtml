@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="auth-page">
+
+    <!-- Visual Side -->
+    <div class="auth-visual">
+        <div class="auth-visual-content">
+            <div class="auth-visual-logo">S</div>
+            <h1 class="auth-visual-title">SpendSense</h1>
+            <p class="auth-visual-desc">Track your income, expenses, and budgets — all in one place.</p>
+            <div class="auth-visual-stats">
+                <div class="auth-stat">
+                    <span class="auth-stat-num">2.4k+</span>
+                    <span class="auth-stat-label">Users</span>
+                </div>
+                <div class="auth-stat-divider"></div>
+                <div class="auth-stat">
+                    <span class="auth-stat-num">98%</span>
+                    <span class="auth-stat-label">Satisfaction</span>
+                </div>
+                <div class="auth-stat-divider"></div>
+                <div class="auth-stat">
+                    <span class="auth-stat-num">Free</span>
+                    <span class="auth-stat-label">Always</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Side -->
+    <div class="auth-form-side">
+        <div class="auth-card">
+
+            <div class="auth-logo">S</div>
+            <h2 class="auth-title">Welcome Back</h2>
+            <p class="auth-subtitle">Login to manage your income and expenses.</p>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle-fill"></i>
+                    @TempData["Success"]
+                </div>
+            }
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    @ViewBag.Error
+                </div>
+            }
+
+            <form asp-action="Login" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <div class="input-wrapper">
+                        <input type="email"
+                               name="email"
+                               class="form-control"
+                               placeholder="you@example.com"
+                               required />
+                        <i class="bi bi-envelope input-icon"></i>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password"
+                               name="password"
+                               class="form-control"
+                               placeholder="••••••••"
+                               required />
+                        <i class="bi bi-lock input-icon"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success w-100 auth-btn">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Login
+                </button>
+            </form>
+
+            <div class="auth-link">
+                Don't have an account?
+                <a asp-controller="Auth" asp-action="Register">Create one</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,64 @@
+﻿@model SpendSense.Models.Budget
+
+@{
+    ViewData["Title"] = "Create Budget";
+}
+
+<div class="page-header-modern">
+    <div>
+        <h2>Create Budget</h2>
+        <p>Set a new spending limit for a specific category.</p>
+    </div>
+
+    <a asp-action="Index" class="btn btn-outline-light">
+        Back to List
+    </a>
+</div>
+
+<div class="modern-panel modern-form-card">
+
+    <form asp-action="Create" method="post">
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label">Category</label>
+                <input asp-for="Category"
+                       class="form-control"
+                       placeholder="Food, Shopping, Transport..."
+                       required />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Limit Amount</label>
+                <input asp-for="LimitAmount"
+                       type="number"
+                       step="0.01"
+                       class="form-control"
+                       placeholder="0.00"
+                       required />
+            </div>
+
+            <div class="col-md-12">
+                <label class="form-label">Description</label>
+                <textarea asp-for="Description"
+                          class="form-control"
+                          rows="4"
+                          placeholder="Optional description"></textarea>
+            </div>
+
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                Cancel
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                Save Budget
+            </button>
+        </div>
+
+    </form>
+
+</div>

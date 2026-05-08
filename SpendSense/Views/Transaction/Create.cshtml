@@ -1,0 +1,95 @@
+﻿@model SpendSense.Models.Transaction
+
+@{
+    ViewData["Title"] = "Create Transaction";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Create Transaction</h2>
+        <p class="text-muted mb-0">Add a new income or expense record.</p>
+    </div>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Back to List
+    </a>
+</div>
+
+<div class="modern-panel modern-form-card">
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label">Transaction Type</label>
+                <select asp-for="TransactionType" class="form-select" required>
+                    <option value="">Select type</option>
+                    <option value="Income">Income</option>
+                    <option value="Expense">Expense</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Title</label>
+                <input asp-for="Title" class="form-control" placeholder="Example: Lunch, Salary..." required />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Amount</label>
+                <input asp-for="Amount" type="number" step="0.01" class="form-control" placeholder="0.00" required />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Category</label>
+                <input asp-for="Category" class="form-control" placeholder="Food, Salary, Transport..." required />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Account</label>
+                <select asp-for="AccountId"
+                        asp-items="ViewBag.Accounts"
+                        class="form-select"
+                        required>
+                    <option value="">Select account</option>
+                </select>
+
+                <small class="text-muted">
+                    Create an account first if the list is empty.
+                </small>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Date</label>
+                <input asp-for="Date" type="date" class="form-control" required />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Reference</label>
+                <input asp-for="Reference" class="form-control" placeholder="Optional reference number" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Receipt Image</label>
+                <input type="file" name="receiptFile" class="form-control" accept="image/*" />
+                <small class="text-muted">Image will be stored in database as binary data.</small>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea asp-for="Notes" class="form-control" rows="4" placeholder="Optional notes"></textarea>
+            </div>
+
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                Cancel
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                Save Transaction
+            </button>
+        </div>
+
+    </form>
+</div>

@@ -1,0 +1,101 @@
+﻿@model SpendSense.Models.Transaction
+
+@{
+    ViewData["Title"] = "Edit Transaction";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Edit Transaction</h2>
+        <p class="text-muted mb-0">Update transaction information.</p>
+    </div>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Back to List
+    </a>
+</div>
+
+<div class="modern-panel modern-form-card">
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+
+        <input type="hidden" asp-for="Id" />
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label">Transaction Type</label>
+                <select asp-for="TransactionType" class="form-select" required>
+                    <option value="">Select type</option>
+                    <option value="Income">Income</option>
+                    <option value="Expense">Expense</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Title</label>
+                <input asp-for="Title" class="form-control" required />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Amount</label>
+                <input asp-for="Amount" type="number" step="0.01" class="form-control" required />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Category</label>
+                <input asp-for="Category" class="form-control" required />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Account</label>
+                <select asp-for="AccountId"
+                        asp-items="ViewBag.Accounts"
+                        class="form-select"
+                        required>
+                    <option value="">Select account</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Date</label>
+                <input asp-for="Date" type="date" class="form-control" required />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Reference</label>
+                <input asp-for="Reference" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Change Receipt Image</label>
+                <input type="file" name="receiptFile" class="form-control" accept="image/*" />
+
+                @if (Model.ReceiptImage != null)
+                {
+                    <div class="mt-2">
+                        <img src="@Url.Action("ReceiptImage", "Transaction", new { id = Model.Id })"
+                             style="width:90px;height:90px;object-fit:cover;border-radius:14px;"
+                             alt="Receipt Image" />
+                    </div>
+                }
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea asp-for="Notes" class="form-control" rows="4"></textarea>
+            </div>
+
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                Cancel
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                Update Transaction
+            </button>
+        </div>
+
+    </form>
+</div>

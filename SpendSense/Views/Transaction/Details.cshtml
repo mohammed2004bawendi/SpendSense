@@ -1,0 +1,134 @@
+﻿@model SpendSense.Models.Transaction
+
+@{
+    ViewData["Title"] = "Transaction Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold">Transaction Details</h2>
+        <p class="text-muted">
+            View complete transaction information.
+        </p>
+    </div>
+
+    <a asp-controller="Transaction"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+        ← Back
+    </a>
+</div>
+
+<div class="table-container">
+
+    <div class="row g-4">
+
+        <div class="details-image-card">
+            @if (Model.ReceiptImage != null)
+            {
+                <img src="@Url.Action("ReceiptImage", "Transaction", new { id = Model.Id })"
+                     alt="Receipt Image" />
+            }
+            else
+            {
+                <div class="details-image-empty">
+                    No Receipt Image
+                </div>
+            }
+        </div>
+
+        <div class="col-md-8">
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="text-muted small">Title</label>
+                    <div class="details-info-card">
+                        <strong>@Model.Title</strong>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="text-muted small">Type</label>
+                    <div class="details-info-card">
+                        @if (Model.TransactionType == "Income")
+                        {
+                            <span class="badge bg-success fs-6">Income</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger fs-6">Expense</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="text-muted small">Category</label>
+                    <div class="details-info-card">
+                        @Model.Category
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="text-muted small">Account</label>
+                    <div class="details-info-card">
+                        @(Model.Account != null ? Model.Account.Name : "No Account")
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="text-muted small">Amount</label>
+                    <div class="details-info-card">
+                        <strong class="fs-4">
+                            ₺ @Model.Amount
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="text-muted small">Date</label>
+                    <div class="details-info-card">
+                        @Model.Date.ToShortDateString()
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="text-muted small">Reference</label>
+                    <div class="details-info-card">
+                        @(string.IsNullOrWhiteSpace(Model.Reference) ? "No Reference" : Model.Reference)
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="text-muted small">Notes</label>
+                    <div class="dashboard-card" style="min-height:120px;">
+                        @(string.IsNullOrWhiteSpace(Model.Notes) ? "No Notes" : Model.Notes)
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-3 mt-4">
+
+                <a asp-controller="Transaction"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-primary">
+                    Edit Transaction
+                </a>
+
+                <a asp-controller="Transaction"
+                       asp-action="Delete"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-outline-danger"
+                       onclick="return confirm('Are you sure you want to delete this transaction?');">
+                    Delete
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

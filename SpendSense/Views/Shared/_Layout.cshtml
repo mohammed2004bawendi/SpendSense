@@ -1,0 +1,145 @@
+﻿@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var isAuthPage = controller == "Auth";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SpendSense</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    @if (isAuthPage)
+    {
+        @RenderBody()
+    }
+    else
+    {
+        <div class="app-layout">
+
+            <!-- ===== SIDEBAR ===== -->
+            <aside class="sidebar" id="sidebar">
+
+                <div>
+                    <!-- Brand -->
+                    <div class="sidebar-brand">
+                        <span class="brand-icon">S</span>
+                        <span class="brand-name">SpendSense</span>
+                    </div>
+
+                    <!-- Menu Label -->
+                    <p class="sidebar-section-label">MENU</p>
+
+                    <!-- Nav Links -->
+                    <nav class="sidebar-menu">
+                        <a asp-controller="Home" asp-action="Index"
+                               class="@(controller == "Home" ? "active" : "")">
+                            <span class="nav-icon"><i class="bi bi-grid-1x2"></i></span>
+                            <span>Dashboard</span>
+                        </a>
+                        <a asp-controller="Transaction" asp-action="Index"
+                               class="@(controller == "Transaction" ? "active" : "")">
+                            <span class="nav-icon"><i class="bi bi-arrow-left-right"></i></span>
+                            <span>Transactions</span>
+                        </a>
+                        <a asp-controller="Budget" asp-action="Index"
+                               class="@(controller == "Budget" ? "active" : "")">
+                            <span class="nav-icon"><i class="bi bi-wallet2"></i></span>
+                            <span>Budgets</span>
+                        </a>
+                        <a asp-controller="Bill" asp-action="Index"
+                               class="@(controller == "Bill" ? "active" : "")">
+                            <span class="nav-icon"><i class="bi bi-receipt"></i></span>
+                            <span>Bills</span>
+                        </a>
+                        <a asp-controller="Account" asp-action="Index"
+                               class="@(controller == "Account" ? "active" : "")">
+                            <span class="nav-icon"><i class="bi bi-bank"></i></span>
+                            <span>Accounts</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Footer -->
+                <div class="sidebar-footer">
+                    <div class="sidebar-divider"></div>
+                    <a asp-controller="Auth" asp-action="Logout" class="logout-link">
+                        <span class="nav-icon"><i class="bi bi-box-arrow-right"></i></span>
+                        <span>Logout</span>
+                    </a>
+                </div>
+
+            </aside>
+
+            <!-- ===== MAIN ===== -->
+            <main class="main-content" id="mainContent">
+
+                <!-- Topbar -->
+                <div class="topbar">
+                    <div class="topbar-left">
+                        <!-- Mobile toggle -->
+                        <button class="sidebar-toggle" id="sidebarToggle">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <div>
+                            <h5 class="topbar-title">@ViewData["Title"]</h5>
+                            <span class="topbar-sub">SpendSense · Financial Dashboard</span>
+                        </div>
+                    </div>
+                    <div class="topbar-right">
+                        <div class="topbar-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page Content -->
+                <div class="page-content">
+                    @RenderBody()
+                </div>
+
+            </main>
+        </div>
+
+        <!-- Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+            // Sidebar toggle (mobile)
+            const toggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (toggle) {
+                toggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                    overlay.classList.toggle('show');
+                });
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('show');
+                });
+            }
+
+            // Active link highlight on click
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function () {
+                    document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
