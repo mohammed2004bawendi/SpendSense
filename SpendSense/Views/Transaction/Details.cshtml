@@ -1,4 +1,4 @@
-﻿@model SpendSense.Models.Transaction
+﻿@model TransactionDto
 
 @{
     ViewData["Title"] = "Transaction Details";
@@ -24,7 +24,7 @@
     <div class="row g-4">
 
         <div class="details-image-card">
-            @if (Model.ReceiptImage != null)
+            @if (Model.HasReceipt)
             {
                 <img src="@Url.Action("ReceiptImage", "Transaction", new { id = Model.Id })"
                      alt="Receipt Image" />
@@ -72,7 +72,7 @@
                 <div class="col-md-6">
                     <label class="text-muted small">Account</label>
                     <div class="details-info-card">
-                        @(Model.Account != null ? Model.Account.Name : "No Account")
+                        @(Model.AccountName ?? "No Account")
                     </div>
                 </div>
 

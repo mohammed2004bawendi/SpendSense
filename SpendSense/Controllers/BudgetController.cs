@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SpendSense.DTOs;
 using SpendSense.Models;
 using SpendSense.Services;
 
@@ -8,13 +9,11 @@ namespace SpendSense.Controllers
     {
         private readonly BudgetService _budgetService;
 
-        // Injects the BudgetService dependency via constructor
         public BudgetController(BudgetService budgetService)
         {
             _budgetService = budgetService;
         }
 
-        // Displays all budgets for the logged-in user, each enriched with spending progress data
         public async Task<IActionResult> Index()
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -24,10 +23,23 @@ namespace SpendSense.Controllers
 
             var budgets = await _budgetService.GetAllByUserId(userId.Value);
 
-            return View(budgets);
+            var dtos = budgets.Select(b => new BudgetDto
+            {
+                Id = b.Id,
+                Category = b.Category,
+                Description = b.Description,
+                LimitAmount = b.LimitAmount,
+                FillClass = b.FillClass,
+                SpentAmount = b.SpentAmount,
+                RemainingAmount = b.RemainingAmount,
+                ProgressPercentage = b.ProgressPercentage,
+                StatusText = b.StatusText,
+                UserId = b.UserId
+            }).ToList();
+
+            return View(dtos);
         }
 
-        // Renders the empty budget creation form
         [HttpGet]
         public IActionResult Create()
         {
@@ -36,26 +48,29 @@ namespace SpendSense.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Auth");
 
-            return View();
+            return View(new CreateBudgetDto());
         }
 
-        // Saves a new budget for the current user and redirects to the list
         [HttpPost]
-        public async Task<IActionResult> Create(Budget budget)
+        public async Task<IActionResult> Create(CreateBudgetDto dto)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
 
             if (userId == null)
                 return RedirectToAction("Login", "Auth");
 
-            budget.UserId = userId.Value;
+            var budget = new Budget
+            {
+                Category = dto.Category,
+                Description = dto.Description,
+                LimitAmount = dto.LimitAmount,
+                UserId = userId.Value
+            };
 
             await _budgetService.Add(budget);
-
             return RedirectToAction("Index");
         }
 
-        // Renders the edit form pre-filled with the budget's current data
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -69,34 +84,38 @@ namespace SpendSense.Controllers
             if (budget == null || budget.UserId != userId.Value)
                 return NotFound();
 
-            return View(budget);
+            var dto = new EditBudgetDto
+            {
+                Id = budget.Id,
+                Category = budget.Category,
+                Description = budget.Description,
+                LimitAmount = budget.LimitAmount
+            };
+
+            return View(dto);
         }
 
-        // Updates an existing budget's category, description, limit, and fill class, then redirects to the list
         [HttpPost]
-        public async Task<IActionResult> Edit(Budget budget)
+        public async Task<IActionResult> Edit(EditBudgetDto dto)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
 
             if (userId == null)
                 return RedirectToAction("Login", "Auth");
 
-            var existingBudget = await _budgetService.GetById(budget.Id);
+            var existingBudget = await _budgetService.GetById(dto.Id);
 
             if (existingBudget == null || existingBudget.UserId != userId.Value)
                 return NotFound();
 
-            existingBudget.Category = budget.Category;
-            existingBudget.Description = budget.Description;
-            existingBudget.LimitAmount = budget.LimitAmount;
-            existingBudget.FillClass = budget.FillClass;
+            existingBudget.Category = dto.Category;
+            existingBudget.Description = dto.Description;
+            existingBudget.LimitAmount = dto.LimitAmount;
 
             await _budgetService.Update(existingBudget);
-
             return RedirectToAction("Index");
         }
 
-        // Shows the read-only detail view of a single budget with its progress data
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -110,10 +129,23 @@ namespace SpendSense.Controllers
             if (budget == null || budget.UserId != userId.Value)
                 return NotFound();
 
-            return View(budget);
+            var dto = new BudgetDto
+            {
+                Id = budget.Id,
+                Category = budget.Category,
+                Description = budget.Description,
+                LimitAmount = budget.LimitAmount,
+                FillClass = budget.FillClass,
+                SpentAmount = budget.SpentAmount,
+                RemainingAmount = budget.RemainingAmount,
+                ProgressPercentage = budget.ProgressPercentage,
+                StatusText = budget.StatusText,
+                UserId = budget.UserId
+            };
+
+            return View(dto);
         }
 
-        // Deletes a budget by ID after verifying it belongs to the current user
         public async Task<IActionResult> Delete(int id)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -127,7 +159,6 @@ namespace SpendSense.Controllers
                 return NotFound();
 
             await _budgetService.Delete(id);
-
             return RedirectToAction("Index");
         }
     }

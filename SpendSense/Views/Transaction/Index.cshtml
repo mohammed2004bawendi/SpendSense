@@ -1,4 +1,4 @@
-﻿@model List<SpendSense.Models.Transaction>
+﻿@model List<TransactionDto>
 
 @{
     ViewData["Title"] = "Transactions";
@@ -119,7 +119,7 @@
                     {
                         <tr>
                             <td>
-                                @if (item.ReceiptImage != null)
+                                @if (item.HasReceipt)
                                 {
                                     <img src="@Url.Action("ReceiptImage", "Transaction", new { id = item.Id })"
                                          alt="Receipt"
@@ -154,7 +154,7 @@
                             <td>@item.Category</td>
 
                             <td>
-                                @(item.Account != null ? item.Account.Name : "-")
+                                @(item.AccountName ?? "-")
                             </td>
 
                             <td class="fw-bold">

@@ -1,4 +1,4 @@
-﻿@model SpendSense.Models.Transaction
+﻿@model EditTransactionDto
 
 @{
     ViewData["Title"] = "Edit Transaction";
@@ -70,7 +70,7 @@
                 <label class="form-label">Change Receipt Image</label>
                 <input type="file" name="receiptFile" class="form-control" accept="image/*" />
 
-                @if (Model.ReceiptImage != null)
+                @if (Model.HasReceipt)
                 {
                     <div class="mt-2">
                         <img src="@Url.Action("ReceiptImage", "Transaction", new { id = Model.Id })"

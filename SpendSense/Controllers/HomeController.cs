@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SpendSense.Data;
-using SpendSense.Models;
+using SpendSense.DTOs;
 using SpendSense.Services;
 using System.Diagnostics;
 
@@ -12,15 +12,12 @@ namespace SpendSense.Controllers
         private readonly TransactionService _transactionService;
         private readonly AppDbContext _context;
 
-        // Injects TransactionService and AppDbContext dependencies via constructor
         public HomeController(TransactionService transactionService, AppDbContext context)
         {
             _transactionService = transactionService;
             _context = context;
         }
 
-        // Builds the dashboard: aggregates totals for income, expenses, balance, accounts, bills, and budgets,
-        // then passes the 6 most recent transactions to the view
         public async Task<IActionResult> Index()
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -42,43 +39,57 @@ namespace SpendSense.Controllers
                 .Where(b => b.UserId == userId.Value)
                 .ToListAsync();
 
-            ViewBag.Username = HttpContext.Session.GetString("Username");
-
-            ViewBag.TotalIncome = transactions
+            var totalIncome = transactions
                 .Where(t => t.TransactionType == "Income")
                 .Sum(t => t.Amount);
 
-            ViewBag.TotalExpense = transactions
+            var totalExpense = transactions
                 .Where(t => t.TransactionType == "Expense")
                 .Sum(t => t.Amount);
 
-            ViewBag.Balance = ViewBag.TotalIncome - ViewBag.TotalExpense;
+            var recentTransactions = transactions.Take(6).Select(t => new TransactionDto
+            {
+                Id = t.Id,
+                TransactionType = t.TransactionType,
+                Title = t.Title,
+                Amount = t.Amount,
+                Category = t.Category,
+                Date = t.Date,
+                Reference = t.Reference,
+                Notes = t.Notes,
+                HasReceipt = t.ReceiptImage != null,
+                UserId = t.UserId,
+                AccountId = t.AccountId,
+                AccountName = t.Account?.Name
+            }).ToList();
 
-            ViewBag.AccountBalance = accounts.Sum(a => a.Balance);
-            ViewBag.AccountCount = accounts.Count;
-            ViewBag.TransactionCount = transactions.Count;
-            ViewBag.UnpaidBills = bills.Count(b => !b.Paid);
-            ViewBag.PaidBills = bills.Count(b => b.Paid);
-            ViewBag.BudgetCount = budgets.Count;
+            var dashboard = new DashboardDto
+            {
+                Username = HttpContext.Session.GetString("Username") ?? string.Empty,
+                TotalIncome = totalIncome,
+                TotalExpense = totalExpense,
+                NetBalance = totalIncome - totalExpense,
+                AccountBalance = accounts.Sum(a => a.Balance),
+                AccountCount = accounts.Count,
+                TransactionCount = transactions.Count,
+                UnpaidBills = bills.Count(b => !b.Paid),
+                PaidBills = bills.Count(b => b.Paid),
+                BudgetCount = budgets.Count,
+                RecentTransactions = recentTransactions
+            };
 
-            var recentTransactions = transactions
-                .Take(6)
-                .ToList();
-
-            return View(recentTransactions);
+            return View(dashboard);
         }
 
-        // Renders the privacy policy page
         public IActionResult Privacy()
         {
             return View();
         }
 
-        // Returns the error view with the current request or activity trace ID for diagnostics
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new Models.ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

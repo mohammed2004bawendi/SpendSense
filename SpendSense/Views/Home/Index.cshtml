@@ -1,4 +1,4 @@
-﻿@model List<SpendSense.Models.Transaction>
+@model DashboardDto
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -9,7 +9,7 @@
     <div class="dashboard-hero">
         <div>
             <span class="dashboard-kicker">Financial Overview</span>
-            <h1>Welcome back, @ViewBag.Username 👋</h1>
+            <h1>Welcome back, @Model.Username 👋</h1>
             <p>Here is a quick overview of your income, expenses, bills, budgets and accounts.</p>
         </div>
 
@@ -29,7 +29,7 @@
             </div>
             <div>
                 <p>Total Income</p>
-                <h3>₺ @ViewBag.TotalIncome</h3>
+                <h3>₺ @Model.TotalIncome</h3>
             </div>
         </div>
 
@@ -39,7 +39,7 @@
             </div>
             <div>
                 <p>Total Expense</p>
-                <h3>₺ @ViewBag.TotalExpense</h3>
+                <h3>₺ @Model.TotalExpense</h3>
             </div>
         </div>
 
@@ -49,7 +49,7 @@
             </div>
             <div>
                 <p>Net Balance</p>
-                <h3>₺ @ViewBag.Balance</h3>
+                <h3>₺ @Model.NetBalance</h3>
             </div>
         </div>
 
@@ -59,7 +59,7 @@
             </div>
             <div>
                 <p>Accounts Balance</p>
-                <h3>₺ @ViewBag.AccountBalance</h3>
+                <h3>₺ @Model.AccountBalance</h3>
             </div>
         </div>
 
@@ -71,7 +71,7 @@
             <span><i class="bi bi-arrow-left-right"></i></span>
             <div>
                 <p>Transactions</p>
-                <h4>@ViewBag.TransactionCount</h4>
+                <h4>@Model.TransactionCount</h4>
             </div>
         </div>
 
@@ -79,7 +79,7 @@
             <span><i class="bi bi-bank"></i></span>
             <div>
                 <p>Accounts</p>
-                <h4>@ViewBag.AccountCount</h4>
+                <h4>@Model.AccountCount</h4>
             </div>
         </div>
 
@@ -87,7 +87,7 @@
             <span><i class="bi bi-receipt"></i></span>
             <div>
                 <p>Unpaid Bills</p>
-                <h4>@ViewBag.UnpaidBills</h4>
+                <h4>@Model.UnpaidBills</h4>
             </div>
         </div>
 
@@ -95,7 +95,7 @@
             <span><i class="bi bi-check-circle"></i></span>
             <div>
                 <p>Paid Bills</p>
-                <h4>@ViewBag.PaidBills</h4>
+                <h4>@Model.PaidBills</h4>
             </div>
         </div>
 
@@ -103,7 +103,7 @@
             <span><i class="bi bi-wallet"></i></span>
             <div>
                 <p>Budgets</p>
-                <h4>@ViewBag.BudgetCount</h4>
+                <h4>@Model.BudgetCount</h4>
             </div>
         </div>
 
@@ -146,7 +146,7 @@
             </a>
         </div>
 
-        @if (!Model.Any())
+        @if (!Model.RecentTransactions.Any())
         {
             <div class="alert alert-info mb-0">
                 No transactions found.
@@ -168,7 +168,7 @@
                     </thead>
 
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var item in Model.RecentTransactions)
                         {
                             <tr>
                                 <td>
@@ -178,7 +178,7 @@
                                 <td>@item.Category</td>
 
                                 <td>
-                                    @(item.Account != null ? item.Account.Name : "-")
+                                    @(item.AccountName ?? "-")
                                 </td>
 
                                 <td>

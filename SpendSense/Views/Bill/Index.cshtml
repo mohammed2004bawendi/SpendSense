@@ -1,4 +1,4 @@
-﻿@model List<SpendSense.Models.Bill>
+﻿@model List<BillDto>
 
 @{
     ViewData["Title"] = "Bills";
@@ -61,7 +61,7 @@
                             </td>
 
                             <td>
-                                @(item.Account != null ? item.Account.Name : "-")
+                                @(item.AccountName ?? "-")
                             </td>
 
                             <td>

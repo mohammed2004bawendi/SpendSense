@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SpendSense.DTOs;
 using SpendSense.Models;
 using SpendSense.Services;
 
@@ -8,13 +9,11 @@ namespace SpendSense.Controllers
     {
         private readonly AccountService _accountService;
 
-        // Injects the AccountService dependency via constructor
         public AccountController(AccountService accountService)
         {
             _accountService = accountService;
         }
 
-        // Displays all accounts belonging to the logged-in user
         public async Task<IActionResult> Index()
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -24,10 +23,18 @@ namespace SpendSense.Controllers
 
             var accounts = await _accountService.GetAllByUserId(userId.Value);
 
-            return View(accounts);
+            var dtos = accounts.Select(a => new AccountDto
+            {
+                Id = a.Id,
+                Name = a.Name,
+                AccountType = a.AccountType,
+                Balance = a.Balance,
+                UserId = a.UserId
+            }).ToList();
+
+            return View(dtos);
         }
 
-        // Renders the empty account creation form
         [HttpGet]
         public IActionResult Create()
         {
@@ -36,26 +43,29 @@ namespace SpendSense.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Auth");
 
-            return View();
+            return View(new CreateAccountDto());
         }
 
-        // Saves a new account for the current user and redirects to the list
         [HttpPost]
-        public async Task<IActionResult> Create(Account account)
+        public async Task<IActionResult> Create(CreateAccountDto dto)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
 
             if (userId == null)
                 return RedirectToAction("Login", "Auth");
 
-            account.UserId = userId.Value;
+            var account = new Account
+            {
+                Name = dto.Name,
+                AccountType = dto.AccountType,
+                Balance = dto.Balance,
+                UserId = userId.Value
+            };
 
             await _accountService.Add(account);
-
             return RedirectToAction("Index");
         }
 
-        // Renders the edit form pre-filled with the account's current data
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -69,33 +79,38 @@ namespace SpendSense.Controllers
             if (account == null || account.UserId != userId.Value)
                 return NotFound();
 
-            return View(account);
+            var dto = new EditAccountDto
+            {
+                Id = account.Id,
+                Name = account.Name,
+                AccountType = account.AccountType,
+                Balance = account.Balance
+            };
+
+            return View(dto);
         }
 
-        // Updates an existing account's name, type, and balance, then redirects to the list
         [HttpPost]
-        public async Task<IActionResult> Edit(Account account)
+        public async Task<IActionResult> Edit(EditAccountDto dto)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
 
             if (userId == null)
                 return RedirectToAction("Login", "Auth");
 
-            var existingAccount = await _accountService.GetById(account.Id);
+            var existingAccount = await _accountService.GetById(dto.Id);
 
             if (existingAccount == null || existingAccount.UserId != userId.Value)
                 return NotFound();
 
-            existingAccount.Name = account.Name;
-            existingAccount.AccountType = account.AccountType;
-            existingAccount.Balance = account.Balance;
+            existingAccount.Name = dto.Name;
+            existingAccount.AccountType = dto.AccountType;
+            existingAccount.Balance = dto.Balance;
 
             await _accountService.Update(existingAccount);
-
             return RedirectToAction("Index");
         }
 
-        // Shows the read-only detail view of a single account
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -109,10 +124,18 @@ namespace SpendSense.Controllers
             if (account == null || account.UserId != userId.Value)
                 return NotFound();
 
-            return View(account);
+            var dto = new AccountDto
+            {
+                Id = account.Id,
+                Name = account.Name,
+                AccountType = account.AccountType,
+                Balance = account.Balance,
+                UserId = account.UserId
+            };
+
+            return View(dto);
         }
 
-        // Deletes an account by ID after verifying it belongs to the current user
         public async Task<IActionResult> Delete(int id)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -126,7 +149,6 @@ namespace SpendSense.Controllers
                 return NotFound();
 
             await _accountService.Delete(id);
-
             return RedirectToAction("Index");
         }
     }

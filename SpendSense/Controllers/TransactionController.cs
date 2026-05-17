@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using SpendSense.DTOs;
 using SpendSense.Models;
 using SpendSense.Services;
 
@@ -10,15 +11,12 @@ namespace SpendSense.Controllers
         private readonly TransactionService _transactionService;
         private readonly AccountService _accountService;
 
-        // Injects TransactionService and AccountService dependencies via constructor
         public TransactionController(TransactionService transactionService, AccountService accountService)
         {
             _transactionService = transactionService;
             _accountService = accountService;
         }
 
-        // Lists transactions for the current user, filtered by any combination of keyword, type, category,
-        // account, and date range; also populates the account dropdown for the filter form
         public async Task<IActionResult> Index(string? keyword, string? type, string? category, int? accountId, DateTime? startDate, DateTime? endDate)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -40,10 +38,25 @@ namespace SpendSense.Controllers
             ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             ViewBag.Accounts = new SelectList(accounts, "Id", "Name", accountId);
 
-            return View(transactions);
+            var dtos = transactions.Select(t => new TransactionDto
+            {
+                Id = t.Id,
+                TransactionType = t.TransactionType,
+                Title = t.Title,
+                Amount = t.Amount,
+                Category = t.Category,
+                Date = t.Date,
+                Reference = t.Reference,
+                Notes = t.Notes,
+                HasReceipt = t.ReceiptImage != null,
+                UserId = t.UserId,
+                AccountId = t.AccountId,
+                AccountName = t.Account?.Name
+            }).ToList();
+
+            return View(dtos);
         }
 
-        // Renders the transaction creation form with the user's accounts as a dropdown
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -55,35 +68,42 @@ namespace SpendSense.Controllers
             var accounts = await _accountService.GetAllByUserId(userId.Value);
             ViewBag.Accounts = new SelectList(accounts, "Id", "Name");
 
-            return View();
+            return View(new CreateTransactionDto());
         }
 
-        // Saves a new transaction; if a receipt image is uploaded it is stored as a byte array
         [HttpPost]
-        public async Task<IActionResult> Create(Transaction transaction, IFormFile? receiptFile)
+        public async Task<IActionResult> Create(CreateTransactionDto dto, IFormFile? receiptFile)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
 
             if (userId == null)
                 return RedirectToAction("Login", "Auth");
 
-            transaction.UserId = userId.Value;
+            var transaction = new Transaction
+            {
+                TransactionType = dto.TransactionType,
+                Title = dto.Title,
+                Amount = dto.Amount,
+                Category = dto.Category,
+                AccountId = dto.AccountId,
+                Date = dto.Date,
+                Reference = dto.Reference,
+                Notes = dto.Notes,
+                UserId = userId.Value
+            };
 
             if (receiptFile != null && receiptFile.Length > 0)
             {
                 using var memoryStream = new MemoryStream();
                 await receiptFile.CopyToAsync(memoryStream);
-
                 transaction.ReceiptImage = memoryStream.ToArray();
                 transaction.ReceiptImageContentType = receiptFile.ContentType;
             }
 
             await _transactionService.Add(transaction);
-
             return RedirectToAction("Index");
         }
 
-        // Renders the edit form pre-filled with the transaction's current data and account dropdown
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -100,48 +120,57 @@ namespace SpendSense.Controllers
             var accounts = await _accountService.GetAllByUserId(userId.Value);
             ViewBag.Accounts = new SelectList(accounts, "Id", "Name", transaction.AccountId);
 
-            return View(transaction);
+            var dto = new EditTransactionDto
+            {
+                Id = transaction.Id,
+                TransactionType = transaction.TransactionType,
+                Title = transaction.Title,
+                Amount = transaction.Amount,
+                Category = transaction.Category,
+                AccountId = transaction.AccountId,
+                Date = transaction.Date,
+                Reference = transaction.Reference,
+                Notes = transaction.Notes,
+                HasReceipt = transaction.ReceiptImage != null
+            };
+
+            return View(dto);
         }
 
-        // Updates an existing transaction's fields, replaces the receipt image if a new file is provided,
-        // and re-adjusts the linked account balance accordingly
         [HttpPost]
-        public async Task<IActionResult> Edit(Transaction transaction, IFormFile? receiptFile)
+        public async Task<IActionResult> Edit(EditTransactionDto dto, IFormFile? receiptFile)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
 
             if (userId == null)
                 return RedirectToAction("Login", "Auth");
 
-            var existingTransaction = await _transactionService.GetById(transaction.Id);
+            var existingTransaction = await _transactionService.GetById(dto.Id);
 
             if (existingTransaction == null || existingTransaction.UserId != userId.Value)
                 return NotFound();
 
-            existingTransaction.TransactionType = transaction.TransactionType;
-            existingTransaction.Title = transaction.Title;
-            existingTransaction.Amount = transaction.Amount;
-            existingTransaction.Category = transaction.Category;
-            existingTransaction.AccountId = transaction.AccountId;
-            existingTransaction.Date = transaction.Date;
-            existingTransaction.Reference = transaction.Reference;
-            existingTransaction.Notes = transaction.Notes;
+            existingTransaction.TransactionType = dto.TransactionType;
+            existingTransaction.Title = dto.Title;
+            existingTransaction.Amount = dto.Amount;
+            existingTransaction.Category = dto.Category;
+            existingTransaction.AccountId = dto.AccountId;
+            existingTransaction.Date = dto.Date;
+            existingTransaction.Reference = dto.Reference;
+            existingTransaction.Notes = dto.Notes;
 
             if (receiptFile != null && receiptFile.Length > 0)
             {
                 using var memoryStream = new MemoryStream();
                 await receiptFile.CopyToAsync(memoryStream);
-
                 existingTransaction.ReceiptImage = memoryStream.ToArray();
                 existingTransaction.ReceiptImageContentType = receiptFile.ContentType;
             }
 
             await _transactionService.Update(existingTransaction);
-
             return RedirectToAction("Index");
         }
 
-        // Shows the read-only detail view of a single transaction, including its linked account
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -155,10 +184,25 @@ namespace SpendSense.Controllers
             if (transaction == null || transaction.UserId != userId.Value)
                 return NotFound();
 
-            return View(transaction);
+            var dto = new TransactionDto
+            {
+                Id = transaction.Id,
+                TransactionType = transaction.TransactionType,
+                Title = transaction.Title,
+                Amount = transaction.Amount,
+                Category = transaction.Category,
+                Date = transaction.Date,
+                Reference = transaction.Reference,
+                Notes = transaction.Notes,
+                HasReceipt = transaction.ReceiptImage != null,
+                UserId = transaction.UserId,
+                AccountId = transaction.AccountId,
+                AccountName = transaction.Account?.Name
+            };
+
+            return View(dto);
         }
 
-        // Deletes a transaction by ID, reverses its effect on the account balance, and redirects to the list
         public async Task<IActionResult> Delete(int id)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -172,11 +216,9 @@ namespace SpendSense.Controllers
                 return NotFound();
 
             await _transactionService.Delete(id);
-
             return RedirectToAction("Index");
         }
 
-        // Serves the stored receipt image bytes as an HTTP file response so the browser can display it
         public async Task<IActionResult> ReceiptImage(int id)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
