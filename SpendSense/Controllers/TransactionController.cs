@@ -16,6 +16,12 @@ namespace SpendSense.Controllers
             _accountService = accountService;
         }
 
+        /// <summary>
+        /// Lists transactions for the currently authenticated user with optional filters.
+        /// Calls TransactionService.Search to retrieve an IQueryable/List filtered by
+        /// keyword, type, category, account and date range. Populates ViewBag with
+        /// filter state and available accounts for the view.
+        /// </summary>
         public async Task<IActionResult> Index(string? keyword, string? type, string? category, int? accountId, DateTime? startDate, DateTime? endDate)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -40,6 +46,10 @@ namespace SpendSense.Controllers
             return View(transactions);
         }
 
+        /// <summary>
+        /// GET: Renders the create-transaction form.
+        /// Ensures the user is authenticated and loads the user's accounts for the account selector.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -54,6 +64,11 @@ namespace SpendSense.Controllers
             return View();
         }
 
+        /// <summary>
+        /// POST: Creates a new transaction for the current user.
+        /// Binds form values to a Transaction model, handles optional receipt file upload
+        /// by reading the stream into a byte[] and setting content type, then calls the service to persist.
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Create(Transaction transaction, IFormFile? receiptFile)
         {
@@ -78,6 +93,11 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// GET: Loads an existing transaction for editing.
+        /// Verifies ownership by comparing UserId in session with the entity's UserId,
+        /// then populates account select list and returns the transaction to the view.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -97,6 +117,11 @@ namespace SpendSense.Controllers
             return View(transaction);
         }
 
+        /// <summary>
+        /// POST: Updates an existing transaction.
+        /// Loads the persisted entity, verifies ownership, copies editable fields from the posted model,
+        /// handles optional new receipt upload, then calls the service to save changes.
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Edit(Transaction transaction, IFormFile? receiptFile)
         {
@@ -133,6 +158,10 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// GET: Shows details for a single transaction.
+        /// Ensures the current user owns the transaction and returns the entity to the details view.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -149,6 +178,10 @@ namespace SpendSense.Controllers
             return View(transaction);
         }
 
+        /// <summary>
+        /// Deletes a transaction by id after verifying ownership.
+        /// Calls TransactionService.Delete to remove the record and then redirects to the index.
+        /// </summary>
         public async Task<IActionResult> Delete(int id)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -166,6 +199,10 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// Returns the receipt image binary for a transaction as a FileResult.
+        /// Verifies user ownership and that a receipt exists; uses stored content type or defaults to image/jpeg.
+        /// </summary>
         public async Task<IActionResult> ReceiptImage(int id)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");

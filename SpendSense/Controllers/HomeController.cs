@@ -12,12 +12,22 @@ namespace SpendSense.Controllers
         private readonly TransactionService _transactionService;
         private readonly AppDbContext _context;
 
+        /// <summary>
+        /// Constructor - injects TransactionService and AppDbContext.
+        /// TransactionService provides business logic for transaction data; AppDbContext
+        /// is used directly here for quick access to accounts, bills and budgets for the dashboard.
+        /// </summary>
         public HomeController(TransactionService transactionService, AppDbContext context)
         {
             _transactionService = transactionService;
             _context = context;
         }
 
+        /// <summary>
+        /// Renders the dashboard (home) view. Gathers transactions, accounts, bills and budgets
+        /// for the current user and computes summary statistics (income, expense, balances, counts)
+        /// using LINQ and passes recent transactions to the view.
+        /// </summary>
         public async Task<IActionResult> Index()
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -65,11 +75,18 @@ namespace SpendSense.Controllers
             return View(recentTransactions);
         }
 
+        /// <summary>
+        /// Returns the Privacy view.
+        /// </summary>
         public IActionResult Privacy()
         {
             return View();
         }
 
+        /// <summary>
+        /// Error action used by the global exception handler to display an error page.
+        /// ResponseCache attributes prevent caching of error responses.
+        /// </summary>
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

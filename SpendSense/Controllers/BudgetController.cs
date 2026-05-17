@@ -8,11 +8,19 @@ namespace SpendSense.Controllers
     {
         private readonly BudgetService _budgetService;
 
+        /// <summary>
+        /// Constructor - injects BudgetService for budget-related operations and data access.
+        /// The service will be provided by DI at runtime.
+        /// </summary>
         public BudgetController(BudgetService budgetService)
         {
             _budgetService = budgetService;
         }
 
+        /// <summary>
+        /// Lists all budgets for the current user by calling the BudgetService.
+        /// Ensures user is authenticated via session before retrieving data.
+        /// </summary>
         public async Task<IActionResult> Index()
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -25,6 +33,9 @@ namespace SpendSense.Controllers
             return View(budgets);
         }
 
+        /// <summary>
+        /// GET: Renders the create-budget form for authenticated users.
+        /// </summary>
         [HttpGet]
         public IActionResult Create()
         {
@@ -36,6 +47,10 @@ namespace SpendSense.Controllers
             return View();
         }
 
+        /// <summary>
+        /// POST: Creates a new budget for the current user. Sets UserId from session and
+        /// calls BudgetService.Add to persist the new budget entity.
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Create(Budget budget)
         {
@@ -51,6 +66,9 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// GET: Loads an existing budget for editing after checking ownership.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -67,6 +85,10 @@ namespace SpendSense.Controllers
             return View(budget);
         }
 
+        /// <summary>
+        /// POST: Updates an existing budget. Verifies ownership, copies updateable fields,
+        /// and delegates persistence to BudgetService.Update.
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Edit(Budget budget)
         {
@@ -90,6 +112,9 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// GET: Shows details for a specific budget after verifying the current user's ownership.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -106,6 +131,9 @@ namespace SpendSense.Controllers
             return View(budget);
         }
 
+        /// <summary>
+        /// Deletes a budget after verifying ownership, then redirects to the budget list.
+        /// </summary>
         public async Task<IActionResult> Delete(int id)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
