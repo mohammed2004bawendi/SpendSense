@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using SpendSense.Models;
 using SpendSense.Services;
 
@@ -8,11 +8,13 @@ namespace SpendSense.Controllers
     {
         private readonly AccountService _accountService;
 
+        // Injects the AccountService dependency via constructor
         public AccountController(AccountService accountService)
         {
             _accountService = accountService;
         }
 
+        // Displays all accounts belonging to the logged-in user
         public async Task<IActionResult> Index()
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -25,6 +27,7 @@ namespace SpendSense.Controllers
             return View(accounts);
         }
 
+        // Renders the empty account creation form
         [HttpGet]
         public IActionResult Create()
         {
@@ -36,6 +39,7 @@ namespace SpendSense.Controllers
             return View();
         }
 
+        // Saves a new account for the current user and redirects to the list
         [HttpPost]
         public async Task<IActionResult> Create(Account account)
         {
@@ -51,6 +55,7 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        // Renders the edit form pre-filled with the account's current data
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -67,6 +72,7 @@ namespace SpendSense.Controllers
             return View(account);
         }
 
+        // Updates an existing account's name, type, and balance, then redirects to the list
         [HttpPost]
         public async Task<IActionResult> Edit(Account account)
         {
@@ -89,6 +95,7 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        // Shows the read-only detail view of a single account
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -105,6 +112,7 @@ namespace SpendSense.Controllers
             return View(account);
         }
 
+        // Deletes an account by ID after verifying it belongs to the current user
         public async Task<IActionResult> Delete(int id)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");

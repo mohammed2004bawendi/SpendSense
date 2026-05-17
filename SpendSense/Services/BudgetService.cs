@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SpendSense.Data;
 using SpendSense.Models;
 
@@ -8,11 +8,13 @@ namespace SpendSense.Services
     {
         private readonly AppDbContext _context;
 
+        // Injects the AppDbContext dependency via constructor
         public BudgetService(AppDbContext context)
         {
             _context = context;
         }
 
+        // Returns all budgets for the specified user, each populated with real-time spending progress
         public async Task<List<Budget>> GetAllByUserId(int userId)
         {
             var budgets = await _context.Budgets
@@ -27,6 +29,7 @@ namespace SpendSense.Services
             return budgets;
         }
 
+        // Returns a single budget by ID with its spending progress filled in, or null if not found
         public async Task<Budget?> GetById(int id)
         {
             var budget = await _context.Budgets.FindAsync(id);
@@ -39,18 +42,21 @@ namespace SpendSense.Services
             return budget;
         }
 
+        // Adds a new budget to the database and persists the change
         public async Task Add(Budget budget)
         {
             _context.Budgets.Add(budget);
             await _context.SaveChangesAsync();
         }
 
+        // Updates an existing budget record in the database and persists the change
         public async Task Update(Budget budget)
         {
             _context.Budgets.Update(budget);
             await _context.SaveChangesAsync();
         }
 
+        // Removes a budget by ID from the database if it exists
         public async Task Delete(int id)
         {
             var budget = await _context.Budgets.FindAsync(id);
@@ -62,6 +68,8 @@ namespace SpendSense.Services
             }
         }
 
+        // Calculates spent amount, remaining amount, and progress percentage for a budget by summing
+        // expense transactions in the same category; sets FillClass and StatusText based on thresholds
         private async Task FillBudgetProgress(Budget budget, int userId)
         {
             var spent = await _context.Transactions

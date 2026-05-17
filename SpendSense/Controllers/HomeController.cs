@@ -12,12 +12,15 @@ namespace SpendSense.Controllers
         private readonly TransactionService _transactionService;
         private readonly AppDbContext _context;
 
+        // Injects TransactionService and AppDbContext dependencies via constructor
         public HomeController(TransactionService transactionService, AppDbContext context)
         {
             _transactionService = transactionService;
             _context = context;
         }
 
+        // Builds the dashboard: aggregates totals for income, expenses, balance, accounts, bills, and budgets,
+        // then passes the 6 most recent transactions to the view
         public async Task<IActionResult> Index()
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -65,11 +68,13 @@ namespace SpendSense.Controllers
             return View(recentTransactions);
         }
 
+        // Renders the privacy policy page
         public IActionResult Privacy()
         {
             return View();
         }
 
+        // Returns the error view with the current request or activity trace ID for diagnostics
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

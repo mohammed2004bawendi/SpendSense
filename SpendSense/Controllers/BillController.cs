@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SpendSense.Models;
 using SpendSense.Services;
@@ -10,12 +10,14 @@ namespace SpendSense.Controllers
         private readonly BillService _billService;
         private readonly AccountService _accountService;
 
+        // Injects BillService and AccountService dependencies via constructor
         public BillController(BillService billService, AccountService accountService)
         {
             _billService = billService;
             _accountService = accountService;
         }
 
+        // Displays all bills belonging to the logged-in user
         public async Task<IActionResult> Index()
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -28,6 +30,7 @@ namespace SpendSense.Controllers
             return View(bills);
         }
 
+        // Renders the bill creation form with the user's accounts as a dropdown
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -42,6 +45,7 @@ namespace SpendSense.Controllers
             return View();
         }
 
+        // Saves a new bill; auto-sets PaidDate if the bill is marked paid on creation
         [HttpPost]
         public async Task<IActionResult> Create(Bill bill)
         {
@@ -60,6 +64,7 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        // Renders the edit form pre-filled with the bill's current data and account dropdown
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -79,6 +84,7 @@ namespace SpendSense.Controllers
             return View(bill);
         }
 
+        // Updates a bill and handles paid/unpaid state transitions (creates or removes linked transactions)
         [HttpPost]
         public async Task<IActionResult> Edit(Bill bill)
         {
@@ -94,6 +100,7 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        // Shows the read-only detail view of a single bill, including its linked account
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -110,6 +117,7 @@ namespace SpendSense.Controllers
             return View(bill);
         }
 
+        // Deletes a bill by ID and its linked transaction (if any) after verifying ownership
         public async Task<IActionResult> Delete(int id)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");

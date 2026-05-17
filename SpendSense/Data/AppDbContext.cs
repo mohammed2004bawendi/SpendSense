@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SpendSense.Models;
 
 namespace SpendSense.Data
 {
     public class AppDbContext : DbContext
     {
+        // Passes EF Core options (connection string, provider) to the base DbContext
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
@@ -16,6 +17,8 @@ namespace SpendSense.Data
         public DbSet<Bill> Bills { get; set; }
         public DbSet<Account> Accounts { get; set; }
 
+        // Configures the Transaction -> Account relationship to use NoAction on delete,
+        // preventing cascade deletes that would remove transactions when an account is deleted
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

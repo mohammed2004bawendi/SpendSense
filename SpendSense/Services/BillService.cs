@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SpendSense.Data;
 using SpendSense.Models;
 
@@ -9,12 +9,14 @@ namespace SpendSense.Services
         private readonly AppDbContext _context;
         private readonly TransactionService _transactionService;
 
+        // Injects AppDbContext and TransactionService dependencies via constructor
         public BillService(AppDbContext context, TransactionService transactionService)
         {
             _context = context;
             _transactionService = transactionService;
         }
 
+        // Returns all bills for the specified user, including their linked account data
         public async Task<List<Bill>> GetAllByUserId(int userId)
         {
             return await _context.Bills
@@ -23,6 +25,7 @@ namespace SpendSense.Services
                 .ToListAsync();
         }
 
+        // Returns a single bill by ID with its linked account and transaction, or null if not found
         public async Task<Bill?> GetById(int id)
         {
             return await _context.Bills
@@ -31,6 +34,8 @@ namespace SpendSense.Services
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
+        // Saves a new bill; if the bill is already marked as paid and has an account,
+        // automatically creates a linked expense transaction
         public async Task Add(Bill bill)
         {
             if (bill.Paid && bill.AccountId.HasValue)
@@ -49,6 +54,9 @@ namespace SpendSense.Services
             await _context.SaveChangesAsync();
         }
 
+        // Updates a bill and handles all four paid/unpaid state transitions:
+        // Paid->Unpaid removes the linked transaction; Unpaid->Paid creates one;
+        // Paid->Paid updates the existing transaction; Unpaid->Unpaid just saves the bill
         public async Task Update(Bill bill)
         {
             var oldBill = await _context.Bills
@@ -144,6 +152,8 @@ namespace SpendSense.Services
             await _context.SaveChangesAsync();
         }
 
+        // Deletes a bill by ID; nullifies the TransactionId foreign key first to avoid constraint errors,
+        // then removes any linked expense transaction
         public async Task Delete(int id)
         {
             var bill = await _context.Bills
@@ -154,7 +164,7 @@ namespace SpendSense.Services
 
             int? transactionId = bill.TransactionId;
 
-         
+
             bill.TransactionId = null;
 
             _context.Bills.Remove(bill);
@@ -166,6 +176,7 @@ namespace SpendSense.Services
             }
         }
 
+        // Builds a new expense Transaction record from a paid bill's data
         private Transaction CreateBillTransaction(Bill bill)
         {
             return new Transaction

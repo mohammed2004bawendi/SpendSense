@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SpendSense.Models;
 using SpendSense.Services;
@@ -10,12 +10,15 @@ namespace SpendSense.Controllers
         private readonly TransactionService _transactionService;
         private readonly AccountService _accountService;
 
+        // Injects TransactionService and AccountService dependencies via constructor
         public TransactionController(TransactionService transactionService, AccountService accountService)
         {
             _transactionService = transactionService;
             _accountService = accountService;
         }
 
+        // Lists transactions for the current user, filtered by any combination of keyword, type, category,
+        // account, and date range; also populates the account dropdown for the filter form
         public async Task<IActionResult> Index(string? keyword, string? type, string? category, int? accountId, DateTime? startDate, DateTime? endDate)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -40,6 +43,7 @@ namespace SpendSense.Controllers
             return View(transactions);
         }
 
+        // Renders the transaction creation form with the user's accounts as a dropdown
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -54,6 +58,7 @@ namespace SpendSense.Controllers
             return View();
         }
 
+        // Saves a new transaction; if a receipt image is uploaded it is stored as a byte array
         [HttpPost]
         public async Task<IActionResult> Create(Transaction transaction, IFormFile? receiptFile)
         {
@@ -78,6 +83,7 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        // Renders the edit form pre-filled with the transaction's current data and account dropdown
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -97,6 +103,8 @@ namespace SpendSense.Controllers
             return View(transaction);
         }
 
+        // Updates an existing transaction's fields, replaces the receipt image if a new file is provided,
+        // and re-adjusts the linked account balance accordingly
         [HttpPost]
         public async Task<IActionResult> Edit(Transaction transaction, IFormFile? receiptFile)
         {
@@ -133,6 +141,7 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        // Shows the read-only detail view of a single transaction, including its linked account
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -149,6 +158,7 @@ namespace SpendSense.Controllers
             return View(transaction);
         }
 
+        // Deletes a transaction by ID, reverses its effect on the account balance, and redirects to the list
         public async Task<IActionResult> Delete(int id)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -166,6 +176,7 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        // Serves the stored receipt image bytes as an HTTP file response so the browser can display it
         public async Task<IActionResult> ReceiptImage(int id)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");

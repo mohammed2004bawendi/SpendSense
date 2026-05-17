@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using SpendSense.Models;
 using SpendSense.Services;
 
@@ -8,11 +8,13 @@ namespace SpendSense.Controllers
     {
         private readonly BudgetService _budgetService;
 
+        // Injects the BudgetService dependency via constructor
         public BudgetController(BudgetService budgetService)
         {
             _budgetService = budgetService;
         }
 
+        // Displays all budgets for the logged-in user, each enriched with spending progress data
         public async Task<IActionResult> Index()
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -25,6 +27,7 @@ namespace SpendSense.Controllers
             return View(budgets);
         }
 
+        // Renders the empty budget creation form
         [HttpGet]
         public IActionResult Create()
         {
@@ -36,6 +39,7 @@ namespace SpendSense.Controllers
             return View();
         }
 
+        // Saves a new budget for the current user and redirects to the list
         [HttpPost]
         public async Task<IActionResult> Create(Budget budget)
         {
@@ -51,6 +55,7 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        // Renders the edit form pre-filled with the budget's current data
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -67,6 +72,7 @@ namespace SpendSense.Controllers
             return View(budget);
         }
 
+        // Updates an existing budget's category, description, limit, and fill class, then redirects to the list
         [HttpPost]
         public async Task<IActionResult> Edit(Budget budget)
         {
@@ -90,6 +96,7 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index");
         }
 
+        // Shows the read-only detail view of a single budget with its progress data
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -106,6 +113,7 @@ namespace SpendSense.Controllers
             return View(budget);
         }
 
+        // Deletes a budget by ID after verifying it belongs to the current user
         public async Task<IActionResult> Delete(int id)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");

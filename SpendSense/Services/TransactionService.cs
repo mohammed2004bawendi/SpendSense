@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SpendSense.Data;
 using SpendSense.Models;
 
@@ -8,11 +8,13 @@ namespace SpendSense.Services
     {
         private readonly AppDbContext _context;
 
+        // Injects the AppDbContext dependency via constructor
         public TransactionService(AppDbContext context)
         {
             _context = context;
         }
 
+        // Returns all transactions for the specified user, ordered by date descending, with linked account data
         public async Task<List<Transaction>> GetAllByUserId(int userId)
         {
             return await _context.Transactions
@@ -22,6 +24,7 @@ namespace SpendSense.Services
                 .ToListAsync();
         }
 
+        // Returns a single transaction by ID with its linked account, or null if not found
         public async Task<Transaction?> GetById(int id)
         {
             return await _context.Transactions
@@ -29,6 +32,8 @@ namespace SpendSense.Services
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
+        // Saves a new transaction and adjusts the linked account's balance
+        // (increments for Income, decrements for Expense)
         public async Task Add(Transaction transaction)
         {
             var account = await _context.Accounts.FindAsync(transaction.AccountId);
@@ -49,6 +54,8 @@ namespace SpendSense.Services
             await _context.SaveChangesAsync();
         }
 
+        // Updates a transaction by first reversing the old balance effect on the previous account,
+        // then applying the new balance effect on the (possibly different) new account
         public async Task Update(Transaction transaction)
         {
             var oldTransaction = await _context.Transactions
@@ -82,6 +89,8 @@ namespace SpendSense.Services
             await _context.SaveChangesAsync();
         }
 
+        // Deletes a transaction by ID, reverses its balance effect on the linked account,
+        // and resets any bill that referenced this transaction back to unpaid
         public async Task Delete(int id)
         {
             var transaction = await _context.Transactions.FindAsync(id);
@@ -113,6 +122,8 @@ namespace SpendSense.Services
             }
         }
 
+        // Filters transactions for a user by any combination of keyword (title/category/type/account/reference/notes),
+        // transaction type, category, account, and date range; results are ordered by date descending
         public async Task<List<Transaction>> Search(
             int userId,
             string? keyword,

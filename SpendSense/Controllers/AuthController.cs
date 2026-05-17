@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using SpendSense.Models;
 using SpendSense.Services;
 
@@ -8,19 +8,20 @@ namespace SpendSense.Controllers
     {
         private readonly UserService _userService;
 
+        // Injects the UserService dependency via constructor
         public AuthController(UserService userService)
         {
             _userService = userService;
         }
 
-        // Register Page
+        // Renders the registration form
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
-        // Register Action
+        // Processes registration: validates the model, checks for duplicate email, hashes password, and saves the user
         [HttpPost]
         public async Task<IActionResult> Register(User user)
         {
@@ -42,15 +43,14 @@ namespace SpendSense.Controllers
             return RedirectToAction("Login");
         }
 
-        // Login Page
+        // Renders the login form
         [HttpGet]
-       
         public IActionResult Login()
         {
             return View();
         }
 
-        // Login Action
+        // Authenticates the user by email/password and stores UserId and Username in session
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
         {
@@ -68,7 +68,7 @@ namespace SpendSense.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // Logout
+        // Clears the current session to log the user out and redirects to the login page
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
